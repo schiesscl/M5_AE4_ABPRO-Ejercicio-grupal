@@ -178,3 +178,35 @@ ALTER TABLE Libros
    "Detalle" está dentro de Pedidos (id_libro + cantidad + precio),
    por lo que cada pedido ya apunta a un único libro.
 */
+
+-- MODIFICACIONES EN LA ESTRUCTURA DE LA BASE DE DATOS--
+
+/* 1) Cambiar tipo de dato de telefono_cliente a VARCHAR(20) */
+ALTER TABLE Clientes
+  MODIFY COLUMN telefono_cliente VARCHAR(20) NOT NULL;
+
+/* 2) Modificar precio_libro para aceptar hasta 3 decimales */
+ALTER TABLE Libros
+  MODIFY COLUMN precio_libro DECIMAL(10,3) NOT NULL;
+
+/* 3) Agregar campo fecha_confirmacion a la tabla Pagos */
+ALTER TABLE pagos
+  ADD COLUMN fecha_confirmacion DATE NOT NULL;
+
+--ELIMINACIÓN CONDICIONAL DE DETALLES_PEDIDO--
+/* 4) Eliminar registros de Detalles_Pedido si todos los libros del pedido han sido entregados */
+DELETE FROM Detalles_Pedido
+WHERE id_pedido IN (
+  SELECT id_pedido
+  FROM Pedidos
+  WHERE estado_entrega = 'Entregado'
+);
+/* ) Eliminar la tabla Detalles_Pedido */
+DROP TABLE IF EXISTS Detalles_Pedido;
+
+/* 5) Eliminar la tabla Pagos */
+DROP TABLE IF EXISTS Pagos;
+
+/* 6) Truncar tabla Pedidos */
+ALTER TABLE Pagos DROP FOREIGN KEY FK_Pedidos_TO_Pagos;
+TRUNCATE TABLE Pedidos;
