@@ -145,4 +145,36 @@ INSERT INTO Pagos (id_pedido, fecha_pago, monto_pago, metodo_pago) VALUES
 (13, '2024-01-27', 15.00, 'Tarjeta de Crédito'),
 (14, '2024-01-28', 19.99, 'PayPal'),
 (15, '2024-01-29', 15.50, 'Tarjeta de Débito');
+ 
+-- Restricciones y reglas a seguir --
 
+/* 1) telefono_cliente: solo números y exactamente 10 dígitos */
+ALTER TABLE Clientes
+  ADD CONSTRAINT chk_cliente_telefono_10
+  CHECK (telefono_cliente REGEXP '^[0-9]{10}$');
+
+/* 2) correo_cliente: único y no nulo (ya es NOT NULL en tu tabla) */
+ALTER TABLE Clientes
+  ADD CONSTRAINT uq_clientes_correo UNIQUE (correo_cliente);
+
+/* 3) cantidad_disponible: no puede ser negativa */
+ALTER TABLE Libros
+  ADD CONSTRAINT chk_libros_cant_no_negativa
+  CHECK (cantidad_disponible >= 0);
+
+/* (Opcional recomendado) precio_libro >= 0 para evitar precios negativos */
+ALTER TABLE Libros
+  ADD CONSTRAINT chk_libros_precio_no_negativo
+  CHECK (precio_libro >= 0);
+
+/* 4) id_pedido, id_cliente, id_libro obligatorios
+   En las tablas ya fueron creadas con condición NOT NULL, así que esto está OK.
+*/
+
+/* 5) “Cada pedido asociado a un solo cliente”:
+   Ya se encuentra garantizado porque Pedidos.id_cliente es FK a Clientes (1 cliente por pedido).
+
+   “Cada detalle de pedido debe referirse a un solo libro”:
+   "Detalle" está dentro de Pedidos (id_libro + cantidad + precio),
+   por lo que cada pedido ya apunta a un único libro.
+*/
